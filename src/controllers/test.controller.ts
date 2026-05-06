@@ -25,3 +25,13 @@ export const square = (req: Request, res: Response) => {
       res.status(500).json({ message: "Error fething the url"})
     }
 }
+
+export const cube = (req: Request, res: Response) => {
+    const {a} = req.body;
+    if (typeof a !== "number") {
+        return res.status(404).json({ error: "a is not a number"});
+
+    }else {
+        res.json({ result: a* a* a})
+    }
+}
