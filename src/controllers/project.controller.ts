@@ -1,15 +1,23 @@
 import { Request, Response} from "express";
 import { createProjectService, getProjectsService } from "../services/project.services";
+import { projectSchema } from "../../src/server/schema/serverSchema";   //this needs to be fixed
+import { validateSchemaData } from "../../src/server/utils/validateSchema";  // and this too
 
 export const createProject = async (req: Request, res: Response) => {
   try {
-    const { type, data } = req.body;
+    const data = req.body;
 
-    if (!type || !data) {
-      return res.status(400).json({ error: "type and data are required" });
+    const errors = validateSchemaData(projectSchema, data);
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        errors,
+      });
     }
-
-    const project = await createProjectService(type, data);
+    const project = await createProjectService(
+      "project",
+      data
+    );
 
     return res.status(201).json(project);
 
@@ -18,13 +26,12 @@ export const createProject = async (req: Request, res: Response) => {
   }
 };
 
+export const getProjects = async ( req: Request, res: Response ) => {
+  try {
+    const projects = await getProjectsService();
 
-export const getProjects = async(req: Request, res: Response) => {
-    try {
-        const projects = await getProjectsService();
-
-        res.json(projects);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching projects"});
-    }
-}
+    return res.json(projects);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching projects" });
+  }
+};
